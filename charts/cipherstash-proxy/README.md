@@ -39,6 +39,8 @@ helm uninstall my-cipherstash-proxy
 
 ## Configuration
 
+Create an account on [CipherStash](https://cipherstash.com) and get your workspace credentials from the [CipherStash Dashboard](https://dashboard.cipherstash.com).
+
 ### Required Configuration
 
 The following values must be configured for the proxy to work:
