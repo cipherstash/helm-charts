@@ -28,6 +28,38 @@ database:
   port: "replace_with_postgres_port"
   username: "replace_with_postgres_username"
   password: "replace_with_postgres_password"  # Only used if secrets are disabled
+  # Enable TLS verification between Proxy and the backing database
+  withTlsVerification: false
+  # Install AWS RDS certificate bundle (recommended when running on AWS)
+  installAwsRdsCertBundle: false
+
+# Logging configuration
+logging:
+  # Log level (error | warn | info | debug | trace)
+  level: "info"
+  # Log format (pretty | text | structured)
+  # Default: pretty if terminal detected, otherwise structured
+  format: ""
+  # Enable ANSI (colored) output
+  # Default: true if terminal detected, otherwise false
+  ansiEnabled: ""
+
+# TLS configuration
+tls:
+  # Enforce TLS connections from Client to Proxy
+  requireTls: false
+  # TLS certificate configuration
+  certificate:
+    # Path to the Public Certificate .crt file
+    path: ""
+    # The Public Certificate PEM as a string
+    pem: ""
+  # TLS private key configuration
+  privateKey:
+    # Path to the Private Key file
+    path: ""
+    # The Private Key PEM as a string
+    pem: ""
 
 # Secrets configuration
 secrets:

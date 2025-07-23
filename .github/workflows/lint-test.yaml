@@ -30,6 +30,21 @@ jobs:
 
       - name: Prepare Proxy test values with secrets
         run: |
+          # Check if required secrets are set
+          if [ -z "$CS_WORKSPACE_CRN" ] || [ -z "$CS_CLIENT_ID" ] || [ -z "$CS_CLIENT_KEY" ] || [ -z "$CS_CLIENT_ACCESS_KEY" ] || \
+             [ -z "$CS_CI_DATABASE_HOST" ] || [ -z "$CS_CI_DATABASE_NAME" ] || [ -z "$CS_CI_DATABASE_USER" ] || [ -z "$CS_CI_DATABASE_PASSWORD" ]; then
+            echo "ERROR: One or more required secrets are not set. Please configure the following GitHub secrets:"
+            echo "  - CS_WORKSPACE_CRN"
+            echo "  - CS_CLIENT_ID" 
+            echo "  - CS_CLIENT_KEY"
+            echo "  - CS_CLIENT_ACCESS_KEY"
+            echo "  - CS_CI_DATABASE_HOST"
+            echo "  - CS_CI_DATABASE_NAME"
+            echo "  - CS_CI_DATABASE_USER"
+            echo "  - CS_CI_DATABASE_PASSWORD"
+            exit 1
+          fi
+          
           # Substitute environment variables in test-values.yaml template
           envsubst < charts/cipherstash-proxy/ci/test-values.yaml.template > charts/cipherstash-proxy/ci/test-values.yaml
           # Ensure proper YAML formatting (remove trailing spaces and add newline)

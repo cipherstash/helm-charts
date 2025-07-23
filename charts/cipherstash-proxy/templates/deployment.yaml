@@ -69,6 +69,12 @@ spec:
               {{- else }}
               value: {{ .Values.database.password | quote }}
               {{- end }}
+            - name: CS_DATABASE__WITH_TLS_VERIFICATION
+              value: {{ .Values.database.withTlsVerification | quote }}
+            {{- if .Values.database.installAwsRdsCertBundle }}
+            - name: CS_DATABASE__INSTALL_AWS_RDS_CERT_BUNDLE
+              value: "true"
+            {{- end }}
             - name: CS_WORKSPACE_CRN
               value: {{ required "cipherstash.workspaceCrn is required" .Values.cipherstash.workspaceCrn | quote }}
             - name: CS_CLIENT_ID
@@ -91,6 +97,36 @@ spec:
               {{- else }}
               value: {{ .Values.cipherstash.clientAccessKey | quote }}
               {{- end }}
+            # Logging configuration
+            - name: CS_LOG__LEVEL
+              value: {{ .Values.logging.level | quote }}
+            {{- if .Values.logging.format }}
+            - name: CS_LOG__FORMAT
+              value: {{ .Values.logging.format | quote }}
+            {{- end }}
+            {{- if .Values.logging.ansiEnabled }}
+            - name: CS_LOG__ANSI_ENABLED
+              value: {{ .Values.logging.ansiEnabled | quote }}
+            {{- end }}
+            # TLS configuration
+            - name: CS_SERVER__REQUIRE_TLS
+              value: {{ .Values.tls.requireTls | quote }}
+            {{- if .Values.tls.certificate.path }}
+            - name: CS_TLS__CERTIFICATE_PATH
+              value: {{ .Values.tls.certificate.path | quote }}
+            {{- end }}
+            {{- if .Values.tls.certificate.pem }}
+            - name: CS_TLS__CERTIFICATE_PEM
+              value: {{ .Values.tls.certificate.pem | quote }}
+            {{- end }}
+            {{- if .Values.tls.privateKey.path }}
+            - name: CS_TLS__PRIVATE_KEY_PATH
+              value: {{ .Values.tls.privateKey.path | quote }}
+            {{- end }}
+            {{- if .Values.tls.privateKey.pem }}
+            - name: CS_TLS__PRIVATE_KEY_PEM
+              value: {{ .Values.tls.privateKey.pem | quote }}
+            {{- end }}
             {{- if .Values.prometheus.enabled }}
             - name: CS_PROMETHEUS__ENABLED
               value: "true"
