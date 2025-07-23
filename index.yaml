@@ -1,0 +1,28 @@
+apiVersion: v1
+entries:
+  cipherstash-proxy:
+  - apiVersion: v2
+    appVersion: 2.1.2
+    created: "2025-07-23T02:44:16.915055156Z"
+    description: A Helm chart for CipherStash Proxy - a transparent encryption proxy
+      for PostgreSQL
+    digest: 4e7d9b1028fbc41173e84a9a607b8f6154974275f89dc55d4f35c2fba7e9255e
+    home: https://cipherstash.com
+    keywords:
+    - cipherstash
+    - proxy
+    - postgresql
+    - encryption
+    - database
+    maintainers:
+    - email: support@cipherstash.com
+      name: CipherStash
+    name: cipherstash-proxy
+    sources:
+    - https://github.com/cipherstash/proxy
+    - https://github.com/cipherstash/helm-charts
+    type: application
+    urls:
+    - https://github.com/cipherstash/helm-charts/releases/download/cipherstash-proxy-0.1.1/cipherstash-proxy-0.1.1.tgz
+    version: 0.1.1
+generated: "2025-07-23T02:44:16.915060115Z"
