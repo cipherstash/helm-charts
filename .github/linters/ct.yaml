@@ -4,8 +4,8 @@ additional-commands:
   - helm unittest --strict --file 'unittests/**/*.yaml' {{ .Path }}
 chart-dirs:
   - charts
-chart-repos:
-  - cipherstash=https://cipherstash.github.io/helm-charts
+# chart-repos:
+#   - cipherstash=https://cipherstash.github.io/helm-charts
 github-groups: true
 helm-extra-args: --timeout 600s
 remote: origin
