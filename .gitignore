@@ -3,3 +3,6 @@
 .idea
 .vscode
 .DS_Store
+
+# Local values file
+local-values.yaml
