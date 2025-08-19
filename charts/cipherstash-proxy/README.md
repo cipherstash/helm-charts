@@ -86,26 +86,63 @@ secrets:
   databasePassword: "your-secure-database-password"
   cipherstashClientKey: "your-cipherstash-client-key"
   cipherstashClientAccessKey: "your-cipherstash-access-key"
+  
+  # Optional: Override configuration values with secrets
+  # If not provided, values from database.* and cipherstash.* will be used
+  databaseHost: "postgres.example.com"
+  databaseName: "myapp"
+  databasePort: "5432"
+  databaseUsername: "app_user"
+  cipherstashWorkspaceCrn: "crn:cipherstash:workspace:..."
+  cipherstashClientId: "client_abc123"
 
-# These values will be ignored when secrets.create is true
+# These values will be used as fallbacks when secrets.create is true
+# but the corresponding secret value is not provided
 database:
-  password: ""  # Not used when secrets are enabled
+  host: "postgres.example.com"
+  name: "myapp"
+  port: "5432"
+  username: "app_user"
+  password: ""  # Not used when secrets.create is true
 cipherstash:
-  clientKey: ""  # Not used when secrets are enabled
-  clientAccessKey: ""  # Not used when secrets are enabled
+  workspaceCrn: "crn:cipherstash:workspace:..."
+  clientId: "client_abc123"
+  clientKey: ""  # Not used when secrets.create is true
+  clientAccessKey: ""  # Not used when secrets.create is true
 ```
 
 #### Option 2: External Secrets
 
-Use existing secrets created outside of the chart:
+Use existing secrets created outside of the chart. This option supports external secrets for all configuration values:
 
 ```yaml
 secrets:
   create: false
   external:
+    # Database configuration secrets
+    databaseHostSecret:
+      name: "my-database-config-secret"
+      key: "host"
+    databaseNameSecret:
+      name: "my-database-config-secret"
+      key: "name"
+    databasePortSecret:
+      name: "my-database-config-secret"
+      key: "port"
+    databaseUsernameSecret:
+      name: "my-database-config-secret"
+      key: "username"
     databasePasswordSecret:
       name: "my-database-secret"
       key: "password"
+    
+    # CipherStash configuration secrets
+    cipherstashWorkspaceCrnSecret:
+      name: "my-cipherstash-config-secret"
+      key: "workspace-crn"
+    cipherstashClientIdSecret:
+      name: "my-cipherstash-config-secret"
+      key: "client-id"
     cipherstashClientKeySecret:
       name: "my-cipherstash-secret"
       key: "client-key"
@@ -132,7 +169,13 @@ cipherstash:
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `secrets.create` | Whether to create secrets for sensitive values | `true` |
+| `secrets.databaseHost` | Database host (when create=true) | `""` |
+| `secrets.databaseName` | Database name (when create=true) | `""` |
+| `secrets.databasePort` | Database port (when create=true) | `""` |
+| `secrets.databaseUsername` | Database username (when create=true) | `""` |
 | `secrets.databasePassword` | Database password (when create=true) | `""` |
+| `secrets.cipherstashWorkspaceCrn` | CipherStash workspace CRN (when create=true) | `""` |
+| `secrets.cipherstashClientId` | CipherStash client ID (when create=true) | `""` |
 | `secrets.cipherstashClientKey` | CipherStash client key (when create=true) | `""` |
 | `secrets.cipherstashClientAccessKey` | CipherStash client access key (when create=true) | `""` |
 | `secrets.external.*.name` | Name of existing secret (when create=false) | `""` |
@@ -145,19 +188,24 @@ cipherstash:
 | `replicaCount` | Number of proxy replicas | `1` |
 | `image.repository` | Proxy image repository | `cipherstash/proxy` |
 | `image.tag` | Proxy image tag | `2.1.2` |
+| `image.pullPolicy` | Image pull policy | `IfNotPresent` |
 | `service.type` | Kubernetes service type | `ClusterIP` |
 | `service.port` | Proxy service port | `6432` |
-| `resources.limits.cpu` | CPU limit | `500m` |
-| `resources.limits.memory` | Memory limit | `512Mi` |
+| `service.targetPort` | Proxy container port | `6432` |
+| `resources.limits.cpu` | CPU limit | `1` |
+| `resources.limits.memory` | Memory limit | `2Gi` |
 | `resources.requests.cpu` | CPU request | `100m` |
-| `resources.requests.memory` | Memory request | `128Mi` |
+| `resources.requests.memory` | Memory request | `256Mi` |
 
 ### Metrics and Monitoring
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `metricsService.enabled` | Enable metrics service | `true` |
+| `metricsService.type` | Metrics service type | `ClusterIP` |
 | `metricsService.port` | Metrics service port | `9930` |
+| `metricsService.targetPort` | Metrics container port | `9930` |
+| `metricsService.annotations` | Metrics service annotations | `{"prometheus.io/scrape": "true", "prometheus.io/port": "9930", "prometheus.io/path": "/metrics"}` |
 | `prometheus.enabled` | Enable Prometheus metrics | `true` |
 
 ### Autoscaling
@@ -168,6 +216,32 @@ cipherstash:
 | `autoscaling.minReplicas` | Minimum replicas | `1` |
 | `autoscaling.maxReplicas` | Maximum replicas | `100` |
 | `autoscaling.targetCPUUtilizationPercentage` | Target CPU utilization | `80` |
+| `autoscaling.targetMemoryUtilizationPercentage` | Target memory utilization | `80` |
+
+### Database Configuration
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `database.withTlsVerification` | Enable TLS verification between Proxy and database | `false` |
+| `database.installAwsRdsCertBundle` | Install AWS RDS certificate bundle (recommended for AWS) | `false` |
+
+### Logging Configuration
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `logging.level` | Log level (error \| warn \| info \| debug \| trace) | `info` |
+| `logging.format` | Log format (pretty \| text \| structured) | `""` |
+| `logging.ansiEnabled` | Enable ANSI (colored) output | `""` |
+
+### TLS Configuration
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `tls.requireTls` | Enforce TLS connections from Client to Proxy | `false` |
+| `tls.certificate.path` | Path to the Public Certificate .crt file | `""` |
+| `tls.certificate.pem` | The Public Certificate PEM as a string | `""` |
+| `tls.privateKey.path` | Path to the Private Key file | `""` |
+| `tls.privateKey.pem` | The Private Key PEM as a string | `""` |
 
 ### Ingress
 
@@ -176,6 +250,65 @@ cipherstash:
 | `ingress.enabled` | Enable ingress | `false` |
 | `ingress.className` | Ingress class name | `""` |
 | `ingress.annotations` | Ingress annotations | `{}` |
+| `ingress.hosts` | Ingress hosts configuration | `[{"host": "chart-example.local", "paths": [{"path": "/", "pathType": "Prefix"}]}]` |
+| `ingress.tls` | Ingress TLS configuration | `[]` |
+
+### Service Account
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `serviceAccount.create` | Whether to create a service account | `true` |
+| `serviceAccount.name` | Name of the service account to use | `""` |
+| `serviceAccount.annotations` | Annotations to add to the service account | `{}` |
+
+### Pod Configuration
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `podAnnotations` | Annotations to add to pods | `{}` |
+| `podSecurityContext` | Pod security context | `{}` |
+| `securityContext` | Container security context | `{}` |
+
+### Deployment Strategy
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `strategy.type` | Deployment strategy type | `RollingUpdate` |
+| `strategy.rollingUpdate.maxUnavailable` | Maximum unavailable pods during update | `25%` |
+| `strategy.rollingUpdate.maxSurge` | Maximum surge pods during update | `25%` |
+
+### Health Checks
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `probes.liveness.enabled` | Enable liveness probe | `true` |
+| `probes.liveness.initialDelaySeconds` | Initial delay for liveness probe | `30` |
+| `probes.liveness.periodSeconds` | Period for liveness probe | `10` |
+| `probes.liveness.timeoutSeconds` | Timeout for liveness probe | `5` |
+| `probes.liveness.failureThreshold` | Failure threshold for liveness probe | `3` |
+| `probes.readiness.enabled` | Enable readiness probe | `true` |
+| `probes.readiness.initialDelaySeconds` | Initial delay for readiness probe | `5` |
+| `probes.readiness.periodSeconds` | Period for readiness probe | `5` |
+| `probes.readiness.timeoutSeconds` | Timeout for readiness probe | `3` |
+| `probes.readiness.failureThreshold` | Failure threshold for readiness probe | `3` |
+
+### Namespace Configuration
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `namespace.create` | Whether to create a namespace | `false` |
+| `namespace.name` | Name of the namespace to create | `cipherstash` |
+
+### Advanced Configuration
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `imagePullSecrets` | Image pull secrets | `[]` |
+| `nameOverride` | Override chart name | `""` |
+| `fullnameOverride` | Override full chart name | `""` |
+| `nodeSelector` | Node selector for pod assignment | `{}` |
+| `tolerations` | Tolerations for pod assignment | `[]` |
+| `affinity` | Affinity for pod assignment | `{}` |
 
 ## Examples
 
@@ -183,20 +316,30 @@ cipherstash:
 
 ```yaml
 # values-production.yaml
+# You can provide configuration values directly or via secrets
 database:
-  host: "postgres.production.com"
-  name: "myapp"
-  port: "5432"
-  username: "app_user"
+  host: "postgres.production.com"  # Or leave empty and use secrets.databaseHost
+  name: "myapp"  # Or leave empty and use secrets.databaseName
+  port: "5432"  # Or leave empty and use secrets.databasePort
+  username: "app_user"  # Or leave empty and use secrets.databaseUsername
   # password provided via secrets
 
 cipherstash:
-  workspaceCrn: "crn:cipherstash:workspace:us-east-1:12345:workspace/my-workspace"
-  clientId: "client_abc123"
+  workspaceCrn: "crn:cipherstash:workspace:us-east-1:12345:workspace/my-workspace"  # Or leave empty and use secrets.cipherstashWorkspaceCrn
+  clientId: "client_abc123"  # Or leave empty and use secrets.cipherstashClientId
   # clientKey and clientAccessKey provided via secrets
 
 secrets:
   create: true
+  # Optional: Override configuration values with secrets
+  # databaseHost: "postgres.production.com"
+  # databaseName: "myapp"
+  # databasePort: "5432"
+  # databaseUsername: "app_user"
+  # cipherstashWorkspaceCrn: "crn:cipherstash:workspace:us-east-1:12345:workspace/my-workspace"
+  # cipherstashClientId: "client_abc123"
+  
+  # Required sensitive values
   databasePassword: "secure_database_password"
   cipherstashClientKey: "your_actual_client_key"
   cipherstashClientAccessKey: "your_actual_access_key"
@@ -214,36 +357,71 @@ resources:
 
 ```yaml
 # values-external-secrets.yaml
+# Note: When using external secrets, you can leave these values empty
+# as they will be read from the specified secrets
 database:
-  host: "postgres.production.com"
-  name: "myapp"
-  port: "5432"
-  username: "app_user"
+  host: ""  # Will be read from secret
+  name: ""  # Will be read from secret
+  port: ""  # Will be read from secret
+  username: ""  # Will be read from secret
 
 cipherstash:
-  workspaceCrn: "crn:cipherstash:workspace:us-east-1:12345:workspace/my-workspace"
-  clientId: "client_abc123"
+  workspaceCrn: ""  # Will be read from secret
+  clientId: ""  # Will be read from secret
 
 secrets:
   create: false
   external:
+    # Database configuration secrets
+    databaseHostSecret:
+      name: "database-config"
+      key: "host"
+    databaseNameSecret:
+      name: "database-config"
+      key: "name"
+    databasePortSecret:
+      name: "database-config"
+      key: "port"
+    databaseUsernameSecret:
+      name: "database-config"
+      key: "username"
     databasePasswordSecret:
-      name: "postgres-credentials"
+      name: "database-credentials"
       key: "password"
+    
+    # CipherStash configuration secrets
+    cipherstashWorkspaceCrnSecret:
+      name: "cipherstash-config"
+      key: "workspace-crn"
+    cipherstashClientIdSecret:
+      name: "cipherstash-config"
+      key: "client-id"
     cipherstashClientKeySecret:
       name: "cipherstash-credentials"
       key: "client-key"
     cipherstashClientAccessKeySecret:
       name: "cipherstash-credentials"
-      key: "access-key"
+      key: "client-access-key"
 ```
 
 ```bash
 # Create your secrets first
-kubectl create secret generic postgres-credentials --from-literal=password=your_db_password
+kubectl create secret generic database-config \
+  --from-literal=host=postgres.production.com \
+  --from-literal=name=myapp \
+  --from-literal=port=5432 \
+  --from-literal=username=app_user
+
+kubectl create secret generic database-credentials \
+  --from-literal=password=your_db_password
+
+kubectl create secret generic cipherstash-config \
+  --from-literal=workspace-crn=crn:cipherstash:workspace:us-east-1:12345:workspace/my-workspace \
+  --from-literal=client-id=client_abc123
+
 kubectl create secret generic cipherstash-credentials \
   --from-literal=client-key=your_client_key \
-  --from-literal=access-key=your_access_key
+  --from-literal=client-access-key=your_access_key
 
 # Then install the chart
 helm install cipherstash-proxy cipherstash/cipherstash-proxy -f values-external-secrets.yaml
@@ -273,6 +451,59 @@ affinity:
             values:
             - cipherstash-proxy
         topologyKey: kubernetes.io/hostname
+```
+
+### TLS Configuration Example
+
+```yaml
+# values-tls.yaml
+tls:
+  requireTls: true
+  certificate:
+    # Option 1: Path to certificate file
+    path: "/etc/tls/cert.crt"
+    # Option 2: Certificate as PEM string
+    # pem: |
+    #   -----BEGIN CERTIFICATE-----
+    #   ...
+    #   -----END CERTIFICATE-----
+  privateKey:
+    # Option 1: Path to private key file
+    path: "/etc/tls/key.pem"
+    # Option 2: Private key as PEM string
+    # pem: |
+    #   -----BEGIN PRIVATE KEY-----
+    #   ...
+    #   -----END PRIVATE KEY-----
+
+# Mount TLS certificates as volumes
+volumes:
+  - name: tls-certs
+    secret:
+      secretName: proxy-tls-certs
+
+volumeMounts:
+  - name: tls-certs
+    mountPath: /etc/tls
+    readOnly: true
+```
+
+### AWS RDS Configuration Example
+
+```yaml
+# values-aws-rds.yaml
+database:
+  withTlsVerification: true
+  installAwsRdsCertBundle: true  # Recommended for AWS RDS
+
+# Ensure proper resource allocation for certificate operations
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 200m
+    memory: 512Mi
 ```
 
 ## Using the Proxy
@@ -309,6 +540,37 @@ kubectl exec -it deployment/<release-name>-cipherstash-proxy -- /bin/sh
 kubectl describe deployment <release-name>-cipherstash-proxy
 ```
 
+### Troubleshooting External Secrets
+
+If you're using external secrets and the proxy fails to start, check:
+
+1. **Secret Existence**: Ensure all referenced secrets exist
+```bash
+kubectl get secrets -n <namespace>
+```
+
+2. **Secret Keys**: Verify all required keys are present in the secrets
+```bash
+kubectl describe secret <secret-name> -n <namespace>
+```
+
+3. **Secret Values**: Check that secret values are properly base64 encoded
+```bash
+kubectl get secret <secret-name> -n <namespace> -o yaml
+```
+
+4. **Configuration Validation**: Verify your values.yaml has the correct secret references
+```bash
+helm template <release-name> . --values values.yaml --dry-run
+```
+
+### Common Issues
+
+- **"secret not found"**: Ensure the secret name and namespace are correct
+- **"key not found"**: Verify the secret key names match your configuration
+- **"invalid base64"**: Check that secret values are properly encoded
+- **"permission denied"**: Ensure the service account has access to the secrets
+
 ## Upgrading
 
 ```bash
@@ -327,4 +589,19 @@ For a complete list of configurable values, see `values.yaml` in the chart direc
 
 ## Support
 
-For support with CipherStash Proxy, visit [CipherStash Documentation](https://docs.cipherstash.com) or contact support@cipherstash.com. 
+For support with CipherStash Proxy, visit [CipherStash Documentation](https://docs.cipherstash.com) or contact support@cipherstash.com.
+
+## Version Compatibility
+
+This chart is compatible with:
+- Kubernetes 1.16+
+- Helm 3.2.0+
+- CipherStash Proxy 2.1.2+
+
+## Changelog
+
+### Version 0.1.2
+- Added support for external secrets for all configuration values
+- Enhanced secret management with chart-managed and external secret options
+- Added comprehensive documentation for all configuration options
+- Improved troubleshooting guides for external secrets 
