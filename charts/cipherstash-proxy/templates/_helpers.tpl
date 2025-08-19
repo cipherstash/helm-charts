@@ -134,4 +134,118 @@ cipherstash-client-access-key
 {{- else -}}
 {{- .Values.secrets.external.cipherstashClientAccessKeySecret.key -}}
 {{- end -}}
+{{- end }}
+
+{{/*
+Get database host secret name and key
+*/}}
+{{- define "cipherstash-proxy.databaseHostSecret" -}}
+{{- if .Values.secrets.create -}}
+{{- printf "%s-secrets" (include "cipherstash-proxy.fullname" .) -}}
+{{- else -}}
+{{- .Values.secrets.external.databaseHostSecret.name -}}
+{{- end -}}
+{{- end }}
+
+{{- define "cipherstash-proxy.databaseHostSecretKey" -}}
+{{- if .Values.secrets.create -}}
+database-host
+{{- else -}}
+{{- .Values.secrets.external.databaseHostSecret.key -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Get database name secret name and key
+*/}}
+{{- define "cipherstash-proxy.databaseNameSecret" -}}
+{{- if .Values.secrets.create -}}
+{{- printf "%s-secrets" (include "cipherstash-proxy.fullname" .) -}}
+{{- else -}}
+{{- .Values.secrets.external.databaseNameSecret.name -}}
+{{- end -}}
+{{- end }}
+
+{{- define "cipherstash-proxy.databaseNameSecretKey" -}}
+{{- if .Values.secrets.create -}}
+database-name
+{{- else -}}
+{{- .Values.secrets.external.databaseNameSecret.key -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Get database port secret name and key
+*/}}
+{{- define "cipherstash-proxy.databasePortSecret" -}}
+{{- if .Values.secrets.create -}}
+{{- printf "%s-secrets" (include "cipherstash-proxy.fullname" .) -}}
+{{- else -}}
+{{- .Values.secrets.external.databasePortSecret.name -}}
+{{- end -}}
+{{- end }}
+
+{{- define "cipherstash-proxy.databasePortSecretKey" -}}
+{{- if .Values.secrets.create -}}
+database-port
+{{- else -}}
+{{- .Values.secrets.external.databasePortSecret.key -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Get database username secret name and key
+*/}}
+{{- define "cipherstash-proxy.databaseUsernameSecret" -}}
+{{- if .Values.secrets.create -}}
+{{- printf "%s-secrets" (include "cipherstash-proxy.fullname" .) -}}
+{{- else -}}
+{{- .Values.secrets.external.databaseUsernameSecret.name -}}
+{{- end -}}
+{{- end }}
+
+{{- define "cipherstash-proxy.databaseUsernameSecretKey" -}}
+{{- if .Values.secrets.create -}}
+database-username
+{{- else -}}
+{{- .Values.secrets.external.databaseUsernameSecret.key -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Get CipherStash workspace CRN secret name and key
+*/}}
+{{- define "cipherstash-proxy.cipherstashWorkspaceCrnSecret" -}}
+{{- if .Values.secrets.create -}}
+{{- printf "%s-secrets" (include "cipherstash-proxy.fullname" .) -}}
+{{- else -}}
+{{- .Values.secrets.external.cipherstashWorkspaceCrnSecret.name -}}
+{{- end -}}
+{{- end }}
+
+{{- define "cipherstash-proxy.cipherstashWorkspaceCrnSecretKey" -}}
+{{- if .Values.secrets.create -}}
+cipherstash-workspace-crn
+{{- else -}}
+{{- .Values.secrets.external.cipherstashWorkspaceCrnSecret.key -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Get CipherStash client ID secret name and key
+*/}}
+{{- define "cipherstash-proxy.cipherstashClientIdSecret" -}}
+{{- if .Values.secrets.create -}}
+{{- printf "%s-secrets" (include "cipherstash-proxy.fullname" .) -}}
+{{- else -}}
+{{- .Values.secrets.external.cipherstashClientIdSecret.name -}}
+{{- end -}}
+{{- end }}
+
+{{- define "cipherstash-proxy.cipherstashClientIdSecretKey" -}}
+{{- if .Values.secrets.create -}}
+cipherstash-client-id
+{{- else -}}
+{{- .Values.secrets.external.cipherstashClientIdSecret.key -}}
+{{- end -}}
 {{- end }} 

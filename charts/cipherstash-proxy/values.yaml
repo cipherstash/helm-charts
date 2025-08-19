@@ -71,6 +71,12 @@ secrets:
   databasePassword: ""
   cipherstashClientKey: ""
   cipherstashClientAccessKey: ""
+  databaseHost: ""
+  databaseName: ""
+  databasePort: ""
+  databaseUsername: ""
+  cipherstashWorkspaceCrn: ""
+  cipherstashClientId: ""
 
   # Use external secrets (when create is false)
   external:
@@ -88,6 +94,36 @@ secrets:
     cipherstashClientAccessKeySecret:
       name: ""
       key: "client-access-key"
+
+    # Name of existing secret containing database host
+    databaseHostSecret:
+      name: ""
+      key: "host"
+
+    # Name of existing secret containing database name
+    databaseNameSecret:
+      name: ""
+      key: "name"
+
+    # Name of existing secret containing database port
+    databasePortSecret:
+      name: ""
+      key: "port"
+
+    # Name of existing secret containing database username
+    databaseUsernameSecret:
+      name: ""
+      key: "username"
+
+    # Name of existing secret containing CipherStash workspace CRN
+    cipherstashWorkspaceCrnSecret:
+      name: ""
+      key: "workspace-crn"
+
+    # Name of existing secret containing CipherStash client ID
+    cipherstashClientIdSecret:
+      name: ""
+      key: "client-id"
 
 # Prometheus configuration
 prometheus:

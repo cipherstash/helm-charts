@@ -53,13 +53,41 @@ spec:
             {{- end }}
           env:
             - name: CS_DATABASE__HOST
+              {{- if or .Values.secrets.create (and .Values.secrets.external.databaseHostSecret.name (not .Values.secrets.create)) }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cipherstash-proxy.databaseHostSecret" . }}
+                  key: {{ include "cipherstash-proxy.databaseHostSecretKey" . }}
+              {{- else }}
               value: {{ required "database.host is required" .Values.database.host | quote }}
+              {{- end }}
             - name: CS_DATABASE__NAME
+              {{- if or .Values.secrets.create (and .Values.secrets.external.databaseNameSecret.name (not .Values.secrets.create)) }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cipherstash-proxy.databaseNameSecret" . }}
+                  key: {{ include "cipherstash-proxy.databaseNameSecretKey" . }}
+              {{- else }}
               value: {{ required "database.name is required" .Values.database.name | quote }}
+              {{- end }}
             - name: CS_DATABASE__PORT
+              {{- if or .Values.secrets.create (and .Values.secrets.external.databasePortSecret.name (not .Values.secrets.create)) }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cipherstash-proxy.databasePortSecret" . }}
+                  key: {{ include "cipherstash-proxy.databasePortSecretKey" . }}
+              {{- else }}
               value: {{ .Values.database.port | quote }}
+              {{- end }}
             - name: CS_DATABASE__USERNAME
+              {{- if or .Values.secrets.create (and .Values.secrets.external.databaseUsernameSecret.name (not .Values.secrets.create)) }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cipherstash-proxy.databaseUsernameSecret" . }}
+                  key: {{ include "cipherstash-proxy.databaseUsernameSecretKey" . }}
+              {{- else }}
               value: {{ required "database.username is required" .Values.database.username | quote }}
+              {{- end }}
             - name: CS_DATABASE__PASSWORD
               {{- if or .Values.secrets.create (and .Values.secrets.external.databasePasswordSecret.name (not .Values.secrets.create)) }}
               valueFrom:
@@ -76,9 +104,23 @@ spec:
               value: "true"
             {{- end }}
             - name: CS_WORKSPACE_CRN
+              {{- if or .Values.secrets.create (and .Values.secrets.external.cipherstashWorkspaceCrnSecret.name (not .Values.secrets.create)) }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cipherstash-proxy.cipherstashWorkspaceCrnSecret" . }}
+                  key: {{ include "cipherstash-proxy.cipherstashWorkspaceCrnSecretKey" . }}
+              {{- else }}
               value: {{ required "cipherstash.workspaceCrn is required" .Values.cipherstash.workspaceCrn | quote }}
+              {{- end }}
             - name: CS_CLIENT_ID
+              {{- if or .Values.secrets.create (and .Values.secrets.external.cipherstashClientIdSecret.name (not .Values.secrets.create)) }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cipherstash-proxy.cipherstashClientIdSecret" . }}
+                  key: {{ include "cipherstash-proxy.cipherstashClientIdSecretKey" . }}
+              {{- else }}
               value: {{ required "cipherstash.clientId is required" .Values.cipherstash.clientId | quote }}
+              {{- end }}
             - name: CS_CLIENT_KEY
               {{- if or .Values.secrets.create (and .Values.secrets.external.cipherstashClientKeySecret.name (not .Values.secrets.create)) }}
               valueFrom:
